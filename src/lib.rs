@@ -1,15 +1,16 @@
 use std::fmt::Display;
 use array2d::Array2D;
-use num_traits::Num;
+use num_traits::{Num, NumAssignOps, Zero};
 
-pub fn delimiter<T: Num + Display + Copy>(array2d: Array2D<T>) -> impl Num + Display + Copy {
+pub fn delimiter<T: NumAssignOps + Num + Display + Copy + Zero>(array2d: Array2D<T>) -> T {
     let n = array2d.num_rows();
     if n == 2 {
         return array2d.get(0, 0).copied().unwrap() * array2d.get(1, 1).copied().unwrap()
             - array2d.get(0, 1).copied().unwrap() * array2d.get(1, 0).copied().unwrap();
     }
     else {
-        let arrays: Vec<Array2D<T>> = Vec::with_capacity(n);
+        let mut result: T = Zero::zero();
+        let mut arrays: Vec<Array2D<T>> = Vec::with_capacity(n);
         // let mut rows = Vec::with_capacity(n);
         // let rows_iter = array2d.rows_iter();
         let rows_before: Vec<Vec<T>> = array2d.rows_iter()
@@ -17,15 +18,31 @@ pub fn delimiter<T: Num + Display + Copy>(array2d: Array2D<T>) -> impl Num + Dis
             .collect();
         let mut rows_after: Vec<Vec<Vec<T>>> = Vec::with_capacity(n);
         for i in 0..rows_after.capacity() {
-            rows_after[i] = Vec::with_capacity(n - 1);
+            rows_after[i] = rows_before.to_vec();
+        }
+        for i in 0..rows_after.capacity() {
+            rows_after[i].remove(0);
+        }
+        for i in 0..rows_after.capacity() {
             for j in 0..rows_after[i].capacity() {
-                rows_after[i][j] = Vec::with_capacity(n - 1);
+                rows_after[i][j].remove(j);
             }
         }
-        // for ri in rows_iter {
-        //     let row: Vec<T> = ri.map(|x| *x).collect();
-        //     rows.push(row);
-        // }
-        array2d.get(0, 0).copied().unwrap()
+        for i in 0..rows_after.capacity() {
+            arrays[i] = Array2D::from_rows(&rows_after[i]).unwrap();
+        }
+        for i in 0..n {
+            if (1 + i) % 2 != 0 {
+                result -= rows_before[0][i] * delimiter(arrays[i].clone());
+            }
+            else {
+                result += rows_before[0][i] * delimiter(arrays[i].clone());
+            }
+        }
+        return result;
     }
+    // for ri in rows_iter {
+    //     let row: Vec<T> = ri.map(|x| *x).collect();
+    //     rows.push(row);
+    // }
 }
