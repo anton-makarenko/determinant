@@ -23,12 +23,12 @@ pub fn delimiter<T: NumAssignOps + Num + Display + Copy + Zero>(array2d: Array2D
             rows_after[i].remove(0);
         }
         for i in 0..rows_after.capacity() {
-            for j in 0..rows_after[i].capacity() {
-                rows_after[i][j].remove(j);
+            for j in 0..(rows_after[i].capacity() - 1) {
+                rows_after[i][j].remove(i);
             } // TODO fix panic
         }
         for i in 0..rows_after.capacity() {
-            arrays[i] = Array2D::from_rows(&rows_after[i]).unwrap();
+            arrays.push(Array2D::from_rows(&rows_after[i]).unwrap());
         }
         for i in 0..n {
             if (1 + i) % 2 == 0 {
