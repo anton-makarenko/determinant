@@ -2,5 +2,6 @@ use array2d::Array2D;
 use determinant::delimiter;
 
 fn main() {
-    println!("{}", delimiter(Array2D::filled_with(0, 2, 2)));
+    let rows = vec![vec![1, 2, 3], vec![4, 5, 6], vec![4, 5, 6]];
+    println!("{}", delimiter(Array2D::from_rows(&rows).unwrap()));
 }
